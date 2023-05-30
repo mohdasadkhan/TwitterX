@@ -25,11 +25,24 @@ abstract class IAuthApi {
   //whenever we logIn we get the session
   FutureEither<model.Session> login(
       {required String email, required String password});
+
+  Future<model.User?> currentUserAccount();
 }
 
 class AuthAPI extends IAuthApi {
   final Account _account;
   AuthAPI({required Account account}) : _account = account;
+
+  @override
+  Future<model.User?> currentUserAccount() async {
+    try {
+      return await _account.get();
+    } on AppwriteException {
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   FutureEither<model.User> signUp(
@@ -39,19 +52,23 @@ class AuthAPI extends IAuthApi {
           userId: ID.unique(), email: email, password: password);
       return right(accountR);
     } on AppwriteException catch (e, stackTrace) {
-      return left(Failure(e.message ?? 'Some unexpected error occured', stackTrace));
+      return left(
+          Failure(e.message ?? 'Some unexpected error occured', stackTrace));
     } catch (e, stackTrace) {
       return left(Failure(e.toString(), stackTrace));
     }
   }
-  
+
   @override
-  FutureEither<model.Session> login({required String email, required String password}) async {
+  FutureEither<model.Session> login(
+      {required String email, required String password}) async {
     try {
-      final session = await _account.createEmailSession(email: email, password: password);
+      final session =
+          await _account.createEmailSession(email: email, password: password);
       return right(session);
     } on AppwriteException catch (e, stackTrace) {
-      return left(Failure(e.message ?? 'Some unexpected error occured', stackTrace));
+      return left(
+          Failure(e.message ?? 'Some unexpected error occured', stackTrace));
     } catch (e, stackTrace) {
       return left(Failure(e.toString(), stackTrace));
     }

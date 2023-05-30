@@ -8,4 +8,8 @@ class AppUtils {
       ),
     );
   }
+
+  static String getNameFromEmail(String email) {
+    return email.split('@')[0];
+  }
 }
